@@ -1,0 +1,41 @@
+.btn{
+    width: 100%;
+    margin-top: 32px;
+}
+
+.form-section{
+    /* background-color: aqua; */
+    width: 80%;
+    margin-top: 20px;
+}
+
+.f-section{
+    display: flex;
+    /* background-color: rgb(31, 126, 39); */
+    justify-content:center;
+}
+
+.table-section{
+   /* background-color: aqua; */
+    width: 80%;
+    border-radius: 4px;
+    border: 1px solid rgb(214, 214, 214);
+    margin-top: 20px;
+    padding:10px 10px;
+}
+
+.t-section{
+    display: flex;
+    /* background-color: rgb(31, 126, 39); */
+    justify-content:center
+}
+
+.f-table{
+    width: 60%;
+}
+
+/* table{
+    border-radius: 4px !important;
+    padding: 20px 20px;
+    border: 1px solid rgb(219, 218, 218);
+} */
