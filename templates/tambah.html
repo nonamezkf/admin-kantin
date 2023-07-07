@@ -34,9 +34,16 @@
 {% endblock %}
 
 {% block content%}
-    <section class="row container-xxl">
-        <div class="col-md-12">
+    <section class="row container-xxl d-flex justify-content-center">
+        <div class="col-md-8 card p-3 border-primary mt-5">
             <h4>Add New Admin</h4>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <h4 class="{{ category }}">{{ message }}</h4>
+                    {% endfor %}
+                  {% endif %}
+            {% endwith %}
             <form role="form" action="{{url_for('tambah')}}" method="POST">
                 <div class="form-group">
                     <label for="nama">
@@ -49,14 +56,14 @@
                 <label for="email">
                     Email
                 </label>
-                    <input type="text" class="form-control" id="email" name='email'>
+                    <input type="email" class="form-control" id="email" name='email'>
                 </div>
 
                 <div class="form-group">
                     <label for="no_tlp">
                         No. Tlp
                     </label>
-                    <input type="text" class="form-control" id="no_tlp" name="no_tlp">
+                    <input type="number" class="form-control" id="no_tlp" name="no_tlp">
                 </div>
 
                 <div class="form-group">
@@ -66,7 +73,7 @@
                     <input type="text" class="form-control" id="password" name="password">
                 </div>
                 
-                <button type="submit" class="btn btn-primary mt-2">
+                <button type="submit" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     Submit
                 </button>
                 </form>

@@ -60,6 +60,7 @@ def index():
         cow = json.loads(kirimdata.text)
         # print(cow)
 
+       
         if cow["message"] =="sukses":
             # print("iniclientberhasil")
             session['nama'] = form_username
@@ -70,23 +71,11 @@ def index():
             return redirect(url_for('dashboard'))
             #return "<p>ini berhasil</p>"
         
-        if cow =="gagal":
+        elif cow["message"] == "gagal":
             # print("iniclientgagal")
-            return redirect(url_for('index'))
-            return flash("login gagal")
-
-
-    # if request.method == 'POST' and request.form['username']:
-    #     try:
-    #         hash_password = sha256(request.form['password'].encode()).hexdigest()
-    #         user = Admin.get(
-    #             (Admin.nama == request.form['username']) & 
-    #             (Admin.password == hash_password))
-    #     except Admin.DoesNotExist:
-    #         flash('username atau password salah')
-    #     else:
-    #         auth_user(user)
-    #         return redirect(url_for('dashboard'))
+            flash('Masukkan data yang sudah terdaftar', 'errors')
+             
+            
     return render_template('index.html')
 
 @app.route('/dashboard', methods=['GET','POST'])
@@ -112,30 +101,49 @@ def riwayattransaksi():
 @redirect_to_login
 def tambah():
     if request.method == 'POST':
+        error = None
         id_admin = session["id_admin"]
         form_nama = request.form['nama']
         form_email = request.form['email']
         form_no_tlp = request.form['no_tlp']
-        hash_password = sha256(request.form['password'].encode()).hexdigest()
+        form_password = request.form['password']
+        hash_password = sha256(form_password.encode()).hexdigest()
 
-        data_karyawan = {
-            'id_admin': id_admin,
-            'nama' : form_nama,
-            'email' : form_email,
-            'no_tlp' : form_no_tlp,
-            'password': hash_password
-        }
+        if not form_nama or not form_nama.strip():
+            error = 'nama harus terisi'
+        elif not form_email or not form_email.strip():
+            error = 'email harus terisi'
+        elif not form_no_tlp or not form_no_tlp.strip():
+            error = 'no telepon harus terisi'
+        elif not form_password or not form_password.strip(): 
+            error = 'password harus terisi'
+        
+        if error != None:
+            flash(error, 'errors')
 
-        data_dump_json = json.dumps(data_karyawan)
-        alamatserver = "http://localhost:5055/api/karyawans"
+        try:
+            if error is None:
+                data_karyawan = {
+                    'id_admin': id_admin,
+                    'nama' : form_nama,
+                    'email' : form_email,
+                    'no_tlp' : form_no_tlp,
+                    'password': hash_password
+                }
 
-        headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
-        kirimdata = requests.post(alamatserver, data=data_dump_json, headers=headers)
+                data_dump_json = json.dumps(data_karyawan)
+                alamatserver = "http://localhost:5055/api/karyawans"
+                headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
+                kirimdata = requests.post(alamatserver, data=data_dump_json, headers=headers)
 
-        redirect(url_for('dashboard'))    
+                flash("data berhasil disimpan", 'succes')
+                return redirect('dashboard')
+        except:
+            flash("ada yang error", 'errors')
     return render_template('tambah.html')
 
 @app.route('/update/<string:id>', methods=['GET', 'POST'])
+@redirect_to_login
 def update(id):
     if request.method == "POST":
         try :
@@ -158,76 +166,51 @@ def update(id):
 
             headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
             kirimdata = requests.put(alamatserver, data=data_dump_json, headers=headers)
-
+            flash("data berhasil diperbarui", 'succes')
             return redirect(url_for('dashboard'))
         except:
-            flash('data yang anda masukkan kurang')
-        # result = "helo"
+            flash('data yang anda masukkan kurang', 'errors')
+            
     alamatserver = f"http://localhost:5055/api/karyawanbyid/{id}"
-    # headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
-    datas = requests.get(alamatserver)
+    headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
+    datas = requests.get(alamatserver, headers=headers)
 
     rows = json.loads(datas.text)
-
-    print(rows)
-    # id_karyawan = rows.id
-    # print(id_karyawan)
-
     return render_template('edit.html', rows=rows)
 
-@app.route('/updatesave/<string:id>', methods=['POST'])
-def updatesave(id):
-    if request.method == "POST":
-        try :
-            id_admin = session["id_admin"]
-            form_nama = request.form['nama']
-            form_email = request.form['email']
-            form_no_tlp = request.form['no_tlp']
-            hash_password = sha256(request.form['password'].encode()).hexdigest()
-
-            data_karyawan = {
-                'id_admin': id_admin,
-                'nama' : form_nama,
-                'email' : form_email,
-                'no_tlp' : form_no_tlp,
-                'password': hash_password
-            }
-
-            data_dump_json = json.dumps(data_karyawan)
-            alamatserver = f"http://localhost:5055/api/karyawanbyid/{id}"
-
-            headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
-            kirimdata = requests.put(alamatserver, data=data_dump_json, headers=headers)
-
-            redirect(url_for('dashboard'))
-        except:
-            flash('data yang anda masukkan kurang')
- 
-@app.route('/delete', methods=['GET', 'POST'])
+@app.route('/delete/<string:id>', methods=['GET', 'POST'])
 @redirect_to_login
-def delete():
-    return redirect('dashboard')
+def delete(id):
+    if request.method == "GET":
+        alamatserver = f"http://localhost:5055/api/karyawanbyid/{id}"
+        headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
+        kirimrequest = requests.delete(alamatserver, headers=headers)
+        flash("data berhasil dihapus", 'succes')
+        return redirect(url_for('dashboard'))
+    else:
+        flash('maaf data dengan id tersebut tidak ditemukan')
+    return render_template('dashboard.html')
 
 @app.route('/logout', methods=['GET','POST'])
 def logout():
-    if request.method == 'POST':
+    if request.method == 'GET':
         hapus_session = {
             'session_hapus' : True
         }
 
         dataHapusSession_json = json.dumps(hapus_session)
         alamatserver = "http://localhost:5055/api/logout"
-
         headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
-        kirimdata = request.post(alamatserver, data=dataHapusSession_json, headers=headers)
+        kirimdata = requests.get(alamatserver, data=dataHapusSession_json, headers=headers)
         
     session.pop('nama', None)
-    flash('You are now logged out','success')
+    flash('You are now logged out','succes')
     return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
 	app.run(
 		debug=True,
-		host='0.0.0.0'
+		host='0.0.0.0',
+        port=5056
 		)

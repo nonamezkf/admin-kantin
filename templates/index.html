@@ -20,9 +20,13 @@
 {% block content%}
 <div class="section-content">
     <div class="form-section">
-        {% for message in get_flashed_messages() %}
-            <h5 style="color: red;">{{message}}</h5>
-        {% endfor %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <h4 class="{{ category }}">{{ message }}</h4>
+                {% endfor %}
+              {% endif %}
+        {% endwith %}
         <h4>
             App Admin
         </h4>

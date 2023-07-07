@@ -42,6 +42,13 @@
     </section>
 
     <section class="container-xxl">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <h4 class="{{ category }}">{{ message }}</h4>
+                {% endfor %}
+              {% endif %}
+        {% endwith %}
         <h5 class="ms-1 mt-1">
             Data Karyawan
         </h5>
@@ -71,7 +78,7 @@
                         <a href='{{url_for("update", id=data.id)}}' name="btn_edit" id="btn_edit" class="btn btn-primary">Edit</a>
                     </td>
                     <td>
-                        <a href='' name="btn-update" id="" class="btn btn-danger">Delete</a>
+                        <a href='{{url_for("delete", id=data.id)}}' name="btn-delete" id="btn-delete" class="btn btn-danger" onclick='return confirm("Apakah anda yakin ingin menghapus?")'>Delete</a>
                     </td>
                 </tr>
                 {% endfor %}
