@@ -3,17 +3,31 @@ body{
     padding: 0;
 }
 
-.section-content{ 
+
+.containerr{
+    width: 100%;
+    min-height: 90vh;
     display: flex;
     justify-content: center;
+    align-items: center;
+
+
+}
+    
+.navbar{
+  background-color: #4C4B16;
 }
 
 .form-section{
-    margin-top: 100px;
+    background-color: #898121;
     width: 500px;
     padding: 20px 20px;
-    border-radius: 3px;
-    border: 1px solid rgb(172, 171, 171);
+    border-radius: 5px;
+/*    border: 2px solid rgb(219, 215, 215);*/
+}
+
+form{
+    margin-top: 20px;
 }
 
 .form-section h4, h5{
@@ -24,7 +38,63 @@ body{
     display: flex;
     justify-content: center;
 }
-.btn{
+
+
+.tombol-login{
+    margin-top: 10px;
     width: 100px;
-    margin-top: 6px;
+    background-color: white;
+    color: #4C4B16;
+    padding:6px 12px;
+    border: 0;
+    border-style: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    font-family: 'Roboto', sans-serif;
 }
+
+.tombol-login:hover{
+    color: white;
+    background-color: #E7B10A;
+}
+
+h4, h5, a{
+    color: #E7B10A;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+}
+
+.navbar-brand{
+    color: #E7B10A;
+}
+
+.navbar-brand:hover{
+    color: #E7B10A;
+}
+
+
+@media screen and (max-width: 576px){
+    .form-section{
+        width: 350px;
+    }
+
+    h4, h5{
+        color: white;
+        font-weight: 500;
+        font-family: 'Roboto', sans-serif;
+    }
+    
+    .p-btn{
+        display: flex;
+        justify-content: center;
+    }
+}
+
+@media screen and (max-width: 320px){
+    .form-section{
+        width: 280px;
+    }
+
+}
+

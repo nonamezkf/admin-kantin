@@ -1,21 +1,11 @@
-.add-section{
-  margin-top:10px;
-  padding: 5px 3px;
-}
-
 .navbar{
   background-color: #4C4B16;
-}
-
-.alert{
-  margin-top: 15px;
-  margin-bottom: 0;
 }
 
 .tombol{
   background-color: #898121;
   font-weight: 500;
-  padding: 8px 14px;
+  padding: 8px;
   text-decoration: none;
   color: white;
   border-radius: 5px;
@@ -25,4 +15,14 @@
 .tombol:hover{
   color: white;
   background-color: #dac90f;
+}
+
+h4, label{
+  color: #4C4B16;
+  font-weight: 500;
+}
+
+.form-control{
+  color: #4C4B16;
+  font-weight: 500;
 }

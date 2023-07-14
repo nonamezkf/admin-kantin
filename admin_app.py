@@ -39,6 +39,23 @@ def redirect_after_login(f):
     return decorated_function
 
 
+def format_rupiah(number):
+    # Mengubah angka menjadi string dan menghapus karakter non-digit
+    number = str(number).replace(',', '').replace('.', '')
+
+    # Mengecek apakah angka valid
+    if not number.isdigit():
+        raise ValueError('Invalid number')
+
+    # Mengubah string angka menjadi integer
+    number = int(number)
+
+    # Mengubah angka menjadi format rupiah
+    rupiah = "Rp. {:,}".format(number).replace(',', '.')
+
+    return rupiah
+
+
 ############################## routing ##################################
 
 @app.route('/', methods=['GET','POST'])
@@ -67,14 +84,13 @@ def index():
             # print(session['username'])
 
             session["id_admin"] = cow["auth_user"]["admin_id"]
-            # print(session['id_admin'])
+            print(session['id_admin'])
             return redirect(url_for('dashboard'))
             #return "<p>ini berhasil</p>"
         
         elif cow["message"] == "gagal":
             # print("iniclientgagal")
-            flash('Masukkan data yang sudah terdaftar', 'errors')
-             
+            flash('Masukkan data yang sudah terdaftar', 'alert-danger') 
             
     return render_template('index.html')
 
@@ -91,11 +107,64 @@ def dashboard():
 
     return render_template('dashboard.html', rows=rows)
 
-@app.route('/riwayattransaksi')
+@app.route('/riwayattransaksi', methods=['GET','POST'])
 @redirect_to_login
 def riwayattransaksi():
+
+    alamatserver = f"http://localhost:5055/api/semuahistoripesanan/"
+    datas = requests.get(alamatserver)
+    rows = json.loads(datas.text)
+
+    return render_template('riwayattransaksi.html', rows=rows)
+
+
+@app.route('/searchriwayat', methods=['GET', 'POST'])
+@redirect_to_login
+def searchriwayat():
+    error = None
+    form_input = request.form['forminput']
+    if not form_input or not form_input.strip():
+        error = 'Form harus terisi'
+    if error != None:
+        flash(error, 'alert-danger')
     
-    return render_template('riwayattransaksi.html')
+    try:
+        if error is None:
+            data_search = {
+                'forminput': form_input
+            }
+
+            data_dump_json = json.dumps(data_search)
+            alamatserver = "http://localhost:5055/api/searchHistoripesananbyid/"
+            headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
+            kirimdata = requests.get(alamatserver, data=data_dump_json, headers=headers)
+            rows = json.loads(kirimdata.text)
+
+            return render_template('riwayattransaksi.html', rows=rows)
+    except:
+        flash("ada yang error", 'alert-danger')
+
+
+
+@app.route('/detail/<int:id>', methods=['GET', 'POST'])
+@redirect_to_login
+def detail(id):
+
+	alamatserver = f"http://127.0.0.1:5055/api/detailpesanan/{id}"
+	headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
+	datas = requests.get(alamatserver, headers=headers)
+
+	rows = json.loads(datas.text)
+
+	detailPesanan = rows['detail']
+	namaanak = rows['namanya']
+	ttl_pemesanan = rows['ttl_pemesanan']
+	totalPembayaran = rows['totalPembayaran']
+
+	totalHarga = format_rupiah(totalPembayaran)
+	print(totalHarga)
+
+	return render_template('detail.html', detailPesanan=detailPesanan, namaanak=namaanak, ttl_pemesanan=ttl_pemesanan, totalHarga=totalHarga, format_rupiah=format_rupiah)
 
 @app.route('/tambah', methods=['GET','POST'])
 @redirect_to_login
@@ -110,16 +179,16 @@ def tambah():
         hash_password = sha256(form_password.encode()).hexdigest()
 
         if not form_nama or not form_nama.strip():
-            error = 'nama harus terisi'
+            error = 'Nama harus terisi'
         elif not form_email or not form_email.strip():
-            error = 'email harus terisi'
+            error = 'Email harus terisi'
         elif not form_no_tlp or not form_no_tlp.strip():
-            error = 'no telepon harus terisi'
+            error = 'No telepon harus terisi'
         elif not form_password or not form_password.strip(): 
-            error = 'password harus terisi'
+            error = 'Password harus terisi'
         
         if error != None:
-            flash(error, 'errors')
+            flash(error, 'alert-danger')
 
         try:
             if error is None:
@@ -136,7 +205,7 @@ def tambah():
                 headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
                 kirimdata = requests.post(alamatserver, data=data_dump_json, headers=headers)
 
-                flash("data berhasil disimpan", 'succes')
+                flash("Data berhasil disimpan", 'alert-success')
                 return redirect('dashboard')
         except:
             flash("ada yang error", 'errors')
@@ -166,10 +235,10 @@ def update(id):
 
             headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
             kirimdata = requests.put(alamatserver, data=data_dump_json, headers=headers)
-            flash("data berhasil diperbarui", 'succes')
+            flash("Data berhasil diperbarui", 'alert-success')
             return redirect(url_for('dashboard'))
         except:
-            flash('data yang anda masukkan kurang', 'errors')
+            flash('Data yang anda masukkan kurang', 'alert-danger')
             
     alamatserver = f"http://localhost:5055/api/karyawanbyid/{id}"
     headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
@@ -185,7 +254,7 @@ def delete(id):
         alamatserver = f"http://localhost:5055/api/karyawanbyid/{id}"
         headers = {'Content-Type':'application/json', 'Accept':'text/plain'}
         kirimrequest = requests.delete(alamatserver, headers=headers)
-        flash("data berhasil dihapus", 'succes')
+        flash('Data berhasil dihapus', 'alert-success')
         return redirect(url_for('dashboard'))
     else:
         flash('maaf data dengan id tersebut tidak ditemukan')
@@ -204,7 +273,7 @@ def logout():
         kirimdata = requests.get(alamatserver, data=dataHapusSession_json, headers=headers)
         
     session.pop('nama', None)
-    flash('You are now logged out','succes')
+    flash('Anda berhasil logout','alert-success')
     return redirect(url_for('index'))
 
 

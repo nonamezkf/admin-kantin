@@ -1,41 +1,51 @@
+.navbar{
+    background-color:#4C4B16;
+}
+
 .btn{
     width: 100%;
     margin-top: 32px;
 }
 
+.tombol{
+    background-color: #898121;
+    font-weight: 500;
+    padding: 8px;
+    text-decoration: none;
+    color: white;
+    border-radius: 5px;
+    border: none;
+}
+  
+.tombol:hover{
+    color: white;
+    background-color: #dac90f;
+}
+
 .form-section{
     /* background-color: aqua; */
     width: 80%;
-    margin-top: 20px;
+    margin: 20px 0px;    
 }
 
-.f-section{
-    display: flex;
-    /* background-color: rgb(31, 126, 39); */
-    justify-content:center;
+.col input{
+    margin-right: 20px;
+    width: 300px;
 }
 
-.table-section{
-   /* background-color: aqua; */
-    width: 80%;
-    border-radius: 4px;
-    border: 1px solid rgb(214, 214, 214);
-    margin-top: 20px;
-    padding:10px 10px;
-}
 
-.t-section{
-    display: flex;
-    /* background-color: rgb(31, 126, 39); */
-    justify-content:center
-}
+@media screen and (max-width: 576px) {
+    .col input{
+        margin-right: 20px;
+        width: 200px;
+    }
+  }
+  
+  @media screen and (min-width: 577px) {
+    .nav{
+      justify-content: end;
+    }
+  
+  }
 
-.f-table{
-    width: 60%;
-}
 
-/* table{
-    border-radius: 4px !important;
-    padding: 20px 20px;
-    border: 1px solid rgb(219, 218, 218);
-} */
